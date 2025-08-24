@@ -25,7 +25,7 @@ func ReconcileUser(c *gin.Context) {
 		log.Fatalf("Error in creating contact : %v", err)
 	}
 
-	primaryContactID := findPrimaryContactID(contacts)
+	primaryContactID := helpers.FindPrimaryContactID(contacts)
 	linkedContacts, err := helpers.GetAllLinkedContacts(primaryContactID)
 	if err != nil {
 		log.Fatalf("Error in fetching linked contacts :%v", err)
@@ -35,23 +35,22 @@ func ReconcileUser(c *gin.Context) {
 	c.JSON(200, gin.H{"message": response})
 }
 
-func findPrimaryContactID(contacts *[]models.Contact) uint {
-	var primaryContactID uint
-	for _, contact := range *contacts {
-		if contact.LinkPrecedence == models.Primary {
-			primaryContactID = contact.ID
-			break
-		}
-	}
-	return primaryContactID
-}
-
 func formatResponse(primaryContactID uint, linkedContacts *[]models.Contact) models.IdentifyReponse {
 	var contactResponse models.ContactDetailResponse
 	contactResponse.PrimaryContactID = primaryContactID
+	emailsSeen := make(map[string]bool)
+	phonesSeen := make(map[string]bool)
 	for _, contact := range *linkedContacts {
-		contactResponse.Emails = append(contactResponse.Emails, *contact.Email)
-		contactResponse.PhoneNumbers = append(contactResponse.PhoneNumbers, *contact.PhoneNumber)
+		if contact.Email != nil && !emailsSeen[*contact.Email] {
+			contactResponse.Emails = append(contactResponse.Emails, *contact.Email)
+			emailsSeen[*contact.Email] = true
+		}
+
+		if contact.PhoneNumber != nil && !phonesSeen[*contact.PhoneNumber] {
+			contactResponse.PhoneNumbers = append(contactResponse.PhoneNumbers, *contact.PhoneNumber)
+			phonesSeen[*contact.PhoneNumber] = true
+		}
+
 		if contact.LinkPrecedence == models.Secondary {
 			contactResponse.SecondaryContactIDs = append(contactResponse.SecondaryContactIDs, contact.ID)
 		}
