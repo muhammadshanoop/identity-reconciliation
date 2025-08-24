@@ -19,25 +19,21 @@ func ReconcileUser(c *gin.Context) {
 	if err != nil {
 		log.Fatalf("Error in validating request : %v", err)
 	}
-	//create contact
-	contacts, err := helpers.FindOrCreateContact(&contactDetails)
-	if err != nil {
+
+	primaryContactID, err := helpers.FindOrCreateContact(&contactDetails)
+	if err != nil || primaryContactID == nil {
 		log.Fatalf("Error in creating contact : %v", err)
 	}
 
-	primaryContactID := helpers.FindPrimaryContactID(contacts)
-	linkedContacts, err := helpers.GetAllLinkedContacts(primaryContactID)
-	if err != nil {
-		log.Fatalf("Error in fetching linked contacts :%v", err)
-	}
-
-	response := formatResponse(primaryContactID, linkedContacts)
+	response := formatResponse(*primaryContactID)
 	c.JSON(200, gin.H{"message": response})
 }
 
-func formatResponse(primaryContactID uint, linkedContacts *[]models.Contact) models.IdentifyReponse {
+func formatResponse(primaryContactID uint) models.IdentifyReponse {
 	var contactResponse models.ContactDetailResponse
 	contactResponse.PrimaryContactID = primaryContactID
+	linkedContacts, _ := helpers.GetAllLinkedContacts(primaryContactID)
+
 	emailsSeen := make(map[string]bool)
 	phonesSeen := make(map[string]bool)
 	for _, contact := range *linkedContacts {
