@@ -51,12 +51,14 @@ go mod tidy
 ### 3️⃣ Configure Environment Variables
 Create a `.env` file in the root folder:
 ```env
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=postgres
-DB_PASSWORD=yourpassword
-DB_NAME=identity_db
-PORT=8080
+DB_USERNAME="myuser"
+DB_PASSWORD="password"
+DB_HOST="localhost"
+DB_PORT="5432"
+DB_DATABASE="mydb"
+
+APP_PORT="8080"
+APP_ENV="local"
 ```
 
 ### 4️⃣ Run the application

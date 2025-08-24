@@ -115,8 +115,9 @@ func GetAllLinkedContacts(primaryContactID uint) (*[]models.Contact, error) {
 
 func checkIfSameContactPresent(contactDetails *models.ContactDetails, existingContact *[]models.Contact) *uint {
 	for _, c := range *existingContact {
-		if (c.Email != nil && contactDetails.Email != nil && *c.Email == *contactDetails.Email) &&
-			(c.PhoneNumber != nil && contactDetails.PhoneNumber != nil && *c.PhoneNumber == *contactDetails.PhoneNumber) {
+		if ((c.Email != nil && contactDetails.Email != nil && *c.Email == *contactDetails.Email) &&
+			(c.PhoneNumber != nil && contactDetails.PhoneNumber != nil && *c.PhoneNumber == *contactDetails.PhoneNumber)) ||
+			contactDetails.Email == nil || contactDetails.PhoneNumber == nil {
 			primaryID := FindPrimaryContactID(existingContact)
 			return &primaryID
 		}

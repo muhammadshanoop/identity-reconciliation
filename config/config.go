@@ -2,44 +2,35 @@ package config
 
 import (
 	"fmt"
+	"log"
 	"os"
-
-	"github.com/joho/godotenv"
 )
 
 var (
-	DB_HOST     = "localhost"
-	DB_PORT     = "5432"
-	DB_USERNAME = "myuser"
-	DB_PASSWORD = "mypassword"
-	DB_DATABASE = "mydb"
+	DB_HOST     string
+	DB_PORT     string
+	DB_USERNAME string
+	DB_PASSWORD string
+	DB_DATABASE string
 )
 
-func loadConfig() {
-	// DB_HOST = "localhost"
-	// DB_PORT = "5432"
-	// DB_USERNAME = "myuser"
-	// DB_PASSWORD = "mypassword"
-	// DB_DATABASE = "mydb"
-
-	err := godotenv.Load()
-	if err != nil {
-		fmt.Println("Error loading .env file, using default configuration")
-		return
-	}
-
-	DB_HOST = os.Getenv("DB_HOST")
-	DB_PORT = os.Getenv("DB_PORT")
-	DB_USERNAME = os.Getenv("DB_USERNAME")
-	DB_PASSWORD = os.Getenv("DB_PASSWORD")
-	DB_DATABASE = os.Getenv("DB_DATABASE")
-
-}
-
 func GetDSN() string {
-	loadConfig()
-	return fmt.Sprintf(
-		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Kolkata",
-		DB_HOST, DB_USERNAME, DB_PASSWORD, DB_DATABASE, DB_PORT,
+	sslmode := "disable"
+	if os.Getenv("APP_ENV") == "production" {
+		sslmode = "require"
+	}
+	dsn := fmt.Sprintf(
+		"host=%s user=%s password=%s dbname=%s port=%s sslmode=%s TimeZone=Asia/Kolkata",
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_USERNAME"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_DATABASE"),
+		os.Getenv("DB_PORT"),
+		sslmode,
 	)
+
+	if dsn == "" {
+		log.Fatal("Database connection string is empty — check environment variables")
+	}
+	return dsn
 }

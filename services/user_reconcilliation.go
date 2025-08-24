@@ -1,8 +1,6 @@
 package services
 
 import (
-	"log"
-
 	"github.com/gin-gonic/gin"
 	"github.com/muhammadshanoop/identity-reconciliation/helpers"
 	"github.com/muhammadshanoop/identity-reconciliation/models"
@@ -17,12 +15,14 @@ func ReconcileUser(c *gin.Context) {
 	}
 	err := validators.ValidateRequest(&contactDetails)
 	if err != nil {
-		log.Fatalf("Error in validating request : %v", err)
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
 	}
 
 	primaryContactID, err := helpers.FindOrCreateContact(&contactDetails)
 	if err != nil || primaryContactID == nil {
-		log.Fatalf("Error in creating contact : %v", err)
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
 	}
 
 	response := formatResponse(*primaryContactID)
