@@ -1,7 +1,7 @@
 package models
 
 type IdentifyReponse struct {
-	ContactResponse ContactDetailResponse `json;"contact"`
+	ContactResponse ContactDetailResponse `json:"contact"`
 }
 
 type ContactDetailResponse struct {
