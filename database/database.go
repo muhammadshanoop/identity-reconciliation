@@ -3,6 +3,7 @@ package database
 import (
 	"log"
 	"sync"
+	"time"
 
 	"github.com/muhammadshanoop/identity-reconciliation/config"
 	"gorm.io/driver/postgres"
@@ -17,7 +18,15 @@ func GetConnect() {
 		dsn := config.GetDSN()
 		db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 		if err != nil {
-			log.Fatalf("failed to connect to database: %v", err)
+			for i := 0; i < 5; i++ {
+				db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+				if err == nil {
+					log.Println("✅ Connected to database successfully!")
+					break
+				}
+				log.Printf("⏳ Failed to connect (attempt %d/5): %v", i+1, err)
+				time.Sleep(2 * time.Second)
+			}
 		}
 		log.Println("Successfully connected to the database!")
 		DB = db

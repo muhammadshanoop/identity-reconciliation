@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/muhammadshanoop/identity-reconciliation/controllers"
 	"github.com/muhammadshanoop/identity-reconciliation/database"
 	"github.com/muhammadshanoop/identity-reconciliation/routes"
 )
@@ -20,7 +21,7 @@ func init() {
 func main() {
 	database.GetConnect()
 	database.Migrate()
-	router := routes.SetupRouter()
+	router := routes.SetupRouter(controllers.IdentifyUser())
 
 	err := router.Run(":" + os.Getenv("APP_PORT"))
 	if err != nil {
