@@ -36,6 +36,18 @@ func FindOrCreateContact(contactDetails *models.ContactDetails) (*uint, error) {
 	return nil, nil
 }
 
+func GetAllLinkedContacts(primaryContactID uint) (*[]models.Contact, error) {
+	var linkedContacts []models.Contact
+	err := database.DB.Where("id =? OR linked_id=?", primaryContactID, primaryContactID).
+		Find(&linkedContacts).
+		Order("CASE WHEN link_precedence = 'primary' THEN 0 ELSE 1 END").
+		Error
+	if err != nil {
+		return nil, err
+	}
+	return &linkedContacts, nil
+}
+
 func shouldCreateSecondaryContact(existingContact []models.Contact, contactDetails *models.ContactDetails) *uint {
 	primaryContactID := FindPrimaryContactID(&existingContact)
 	newContact := models.Contact{
@@ -99,18 +111,6 @@ func checkTwoPrimaryContactPresent(existingContact []models.Contact) *uint {
 		return &minID
 	}
 	return nil
-}
-
-func GetAllLinkedContacts(primaryContactID uint) (*[]models.Contact, error) {
-	var linkedContacts []models.Contact
-	err := database.DB.Where("id =? OR linked_id=?", primaryContactID, primaryContactID).
-		Find(&linkedContacts).
-		Order("CASE WHEN link_precedence = 'primary' THEN 0 ELSE 1 END").
-		Error
-	if err != nil {
-		return nil, err
-	}
-	return &linkedContacts, nil
 }
 
 func checkIfSameContactPresent(contactDetails *models.ContactDetails, existingContact *[]models.Contact) *uint {

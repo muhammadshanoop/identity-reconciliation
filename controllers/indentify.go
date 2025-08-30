@@ -5,6 +5,8 @@ import (
 	"github.com/muhammadshanoop/identity-reconciliation/services"
 )
 
-func IdentifyUser(c *gin.Context) {
-	services.ReconcileUser(c)
+func IdentifyUser() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		services.UserServiceInstance.ReconcileUser(c)
+	}
 }
